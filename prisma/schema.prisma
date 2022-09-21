@@ -1,0 +1,131 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["filterJson", "InteractiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      =  env("DATABASE_URL")
+}
+
+model User {
+  id          BigInt     @id @default(autoincrement())
+  firstName   String     @db.VarChar(255)
+  lastName    String     @db.VarChar(255)
+  fatherName  String?    @db.VarChar(255)
+  phoneNumber String     @unique @db.VarChar(255)
+  password    String     @db.VarChar(2000)
+  role        Role       @default(USER)
+  avatar      String?    @db.VarChar(2000)
+  IIN         String     @db.VarChar(20)
+  anketaId    BigInt?
+  Booking     Booking[]
+  Response    Response[]
+  Anketa      Anketa?     @relation(fields: [anketaId], references: [id], onDelete: NoAction)
+
+  @@index([IIN], map: "index_user_iin")
+  @@index([phoneNumber], map: "index_user_phone")
+  Comment Comment[]
+}
+
+enum Role {
+  USER
+  ADMIN
+  OPERATOR
+  MODERATOR
+}
+
+model Anketa {
+  id        BigInt   @id @default(autoincrement())
+  birthDay  DateTime
+  address   String   @db.VarChar(255)
+  education String   @db.VarChar(255)
+  specialty String   @db.VarChar(255)
+  workStudy String   @db.VarChar(255)
+  User      User[]
+}
+
+model ImageModel {
+  id     BigInt @id @default(autoincrement())
+  link   String
+  bookId BigInt?
+  newsId BigInt?
+  Book   Book?   @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  News   News?   @relation(fields: [newsId], references: [id], onDelete: NoAction)
+}
+
+model Book {
+  id              BigInt       @id @default(autoincrement())
+  title           String       @db.VarChar(100)
+  author          String       @db.VarChar(100)
+  isbn            String       @db.VarChar(100)
+  description     String
+  count           Int
+  rating          Int
+  price           Int
+  publishing_date DateTime
+  topic           String
+  ImageModel      ImageModel[]
+  BookGenre       BookGenre[]
+  Booking         Booking[]
+
+  @@index([title], map: "index_book_title")
+  @@index([author], map: "index_book_author")
+  @@index([author, title], map: "index_book_authorOrTitle")
+  Response Response[]
+}
+
+model BookGenre {
+  id      BigInt @id @default(autoincrement())
+  bookId  BigInt
+  genreId BigInt
+  Book    Book   @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  Genre   Genre  @relation(fields: [genreId], references: [id], onDelete: NoAction)
+}
+
+model Genre {
+  id        BigInt      @id @default(autoincrement())
+  name      String      @db.VarChar(100)
+  BookGenre BookGenre[]
+}
+
+model News {
+  id          BigInt       @id @default(autoincrement())
+  title       String       @db.VarChar(100)
+  short_title String       @db.VarChar(30)
+  description String       @db.VarChar(1000)
+  created_at  DateTime
+  update_at   DateTime
+  ImageModel  ImageModel[]
+  Comment     Comment[]
+}
+
+model Comment {
+  id      BigInt @id @default(autoincrement())
+  message String
+  userId  BigInt
+  newsId  BigInt
+  User    User   @relation(fields: [userId], references: [id], onDelete: NoAction)
+  News    News   @relation(fields: [newsId], references: [id], onDelete: NoAction)
+}
+
+model Response {
+  id     BigInt @id @default(autoincrement())
+  bookId BigInt
+  userId BigInt
+  Book   Book   @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  User   User   @relation(fields: [userId], references: [id], onDelete: NoAction)
+}
+
+model Booking {
+  id               BigInt   @id @default(autoincrement())
+  received_date    DateTime
+  expiration_date  DateTime
+  return_date      DateTime
+  userId           BigInt
+  bookId           BigInt
+  isExtend         Boolean  @default(false)
+  isExtendApproved Boolean  @default(false)
+  Book             Book     @relation(fields: [bookId], references: [id], onDelete: NoAction)
+  User             User     @relation(fields: [userId], references: [id], onDelete: NoAction)
+}

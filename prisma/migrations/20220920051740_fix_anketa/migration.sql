@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "ImageModel" ALTER COLUMN "bookId" DROP NOT NULL,
+ALTER COLUMN "newsId" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "anketaId" DROP NOT NULL;
