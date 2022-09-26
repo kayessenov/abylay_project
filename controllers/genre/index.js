@@ -3,6 +3,7 @@ const methods = {
     create: null,
     getAll: null,
     update: null,
+    getOne: null,
     delete: null,
 }
 
@@ -12,6 +13,18 @@ methods.getAll = async function() {
     return genre; 
 }   
 
+methods.getOne = async function(data) {
+  const isExist = await prisma.genre.findUnique({
+    where:
+    {
+      id: BigInt(data.id)
+    }
+  })
+
+  if(!isExist) return "Genre already does not exist"
+
+  return isExist;
+}
 
 
 methods.create = async function(data) {   

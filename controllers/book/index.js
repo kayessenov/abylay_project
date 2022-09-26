@@ -80,13 +80,6 @@ methods.getOne = async function(data) {
     if(!isExist) return "Book already does not exist";
 
     return isExist;
-
-    // const getBook = await prisma.book.findUnique({
-    //     where: {
-    //         id: BigInt(data.id)
-    //     }
-    // })
-    // return getBook;
 }
 
 methods.delete = async function(data){

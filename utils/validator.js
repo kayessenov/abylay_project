@@ -11,8 +11,12 @@ const isString = (strings, isRequired = true)=> {
         return {success: true, msg: ``};
     }
 }
-const isInt = () => {
-    
+const isInt = (numbers) => {
+    for(let i in numbers) {
+        if(isNaN(numbers[i])) return {success: false, msg: 'Incorrect integer'};
+
+        return {success: true, msg: ''};
+    }
 }
 
 

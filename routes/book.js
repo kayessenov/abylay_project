@@ -6,9 +6,8 @@ const { isAuth, isAdmin } = require('../middlewares/auth')
 const dateHelp = require("../utils/date")
 
 router.post("/", isAuth, isAdmin, async(req, res) => {
-    const { title,author,isbn,description,count,rating,price,publishing_dat,topic,genreIds } = req.body;
-    console.log(typeof publishing_dat, publishing_dat);
-    publishing_date = new Date(publishing_dat);
+    let { title,author,isbn,description,count,rating,price,publishing_date,topic,genreIds } = req.body;
+    publishing_date = dateHelp(publishing_date);
     
     console.log(typeof publishing_date, publishing_date)
     const { msg, success} = validator.isString({title,author,isbn,description,topic});
