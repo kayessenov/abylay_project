@@ -8,40 +8,43 @@ const methods = {
 }
 
 methods.create = async function(anketaCreate, userId) {
-    const isExist = await prisma.User.findUnique({
-        where: {
-            id: BigInt(userId)
-        }
-    })
-    if(!isExist) return 'User already does not exist'
-
     const createAnketa = await prisma.anketa.create({
         data: {
-            ...anketaCreate,
-            User: {
-                create: userId
+            ...anketaCreate
+        }
+    })
+
+    const updateUser = await prisma.User.update({
+        where: {
+            id: BigInt(userId)
+        },
+        data: {
+            Anketa: {
+                connect: {id: BigInt(createAnketa.id)}
             }
+            
         },
         include: {
-            User: true
+            Anketa: true
         }
     })
     return createAnketa;
+//   id        BigInt   @id @default(autoincrement())
+//   birthDay  DateTime
+//   address   String   @db.VarChar(255)
+//   education String   @db.VarChar(255)
+//   specialty String   @db.VarChar(255)
+//   workStudy String   @db.VarChar(255)
+//   User      User[]
+    
 }
 
-methods.update = async function(anketaUpdate, userId) {
-    const isExist = await prisma.User.findUnique({
-        where: {
-            id: BigInt(userId)
-        }
-    })
-    if(!isExist) return 'User already does not exist'
-
+methods.update = async function(anketaUpdate, {userId}) {
     const updateAnketa = await prisma.anketa.update({anketaUpdate,
     include: {
         User: true
     }})
-    return createAnketa;
+    return updateAnketa;
 }
 
 methods.getAll = async function(anketaGetAll) {
