@@ -18,6 +18,17 @@ router.post('/', isAuth, isAdmin,  async (req, res) => {
     return res.status(200).send({ success: true, data: genre });
 })
 
+.get("/:id", async (req,res) => {
+    try{
+    const { id } = req.params;
+    const getOneGenre = await genreController.getOne({id});
+    return res.status(200).send({success: true, data: getOneGenre})}
+    catch(err){
+        console.log(err);
+        return res.status(500).send({success: false, data: err?.message || err})
+    }
+})
+
 .put('/:id', isAuth, isAdmin,async (req, res) => {
     const { name } = {...req.body, ...req.query};
     const { msg, success} = validator.isString({name});

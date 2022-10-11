@@ -29,6 +29,39 @@ methods.create = async function(anketaCreate, userId) {
         }
     })
     return createAnketa;
+    
+}
+
+methods.update = async function(anketaUpdate, userId) {
+    const isExist = await prisma.user.findUnique({
+        where: {
+            id: BigInt(userId)
+        },
+        include: {
+            Anketa: true
+        }
+    })
+    if(!isExist) throw new Error("User is not found")
+
+    if(isExist.anketaId==anketaUpdate.anketaId){
+        const updateAnketa = await prisma.anketa.update({
+            where: {
+                id: BigInt(anketaUpdate.anketaId)
+            },
+            data:{
+                birthDay:anketaUpdate.birthDay,
+                address:anketaUpdate.address,
+                education:anketaUpdate.education,
+                specialty:anketaUpdate.specialty,
+                workStudy:anketaUpdate.workStudy
+            },
+            include: {
+                User: true
+            }
+        })
+        return updateAnketa;
+    }throw new Error("You are not the author of this Anketa")
+    
 //   id        BigInt   @id @default(autoincrement())
 //   birthDay  DateTime
 //   address   String   @db.VarChar(255)
@@ -36,55 +69,50 @@ methods.create = async function(anketaCreate, userId) {
 //   specialty String   @db.VarChar(255)
 //   workStudy String   @db.VarChar(255)
 //   User      User[]
-    
 }
 
-methods.update = async function(anketaUpdate, {userId}) {
-    const updateAnketa = await prisma.anketa.update({anketaUpdate,
-    include: {
-        User: true
-    }})
-    return updateAnketa;
-}
-
-methods.getAll = async function(anketaGetAll) {
-    const getAllAnketa = await prisma.anketa.findMany();
+methods.getAll = async function() {
+    const getAllAnketa = await prisma.anketa.findMany({
+        include: {
+            User: true
+        }
+    });
     return getAllAnketa;
 }
 
-methods.getOne = async function(data) {
-    const isExist = await prisma.anketa.findUnique({
-        where: {
-            id: BigInt(data.id)
-        },
-        include: {
-            User: true
-        } 
-    });
-
-    if(!isExist) return 'Anketa already does not exist';
-
-    return isExist;
+methods.getOne = async function(userId) {
+    const result = await prisma.user.findFirst({
+        where: {id: BigInt(userId)},
+        select: {
+            Anketa: true 
+        }
+    })
+    return result;
 }
 
-methods.delete = async function(data){
-    const isExist = await prisma.anketa.findUnique({
+methods.delete = async function(anketaId,userId){
+    const isExist = await prisma.user.findFirst({
         where: {
-            id: BigInt(data.id)
-        }
-    });
-    if(!isExist) return 'Anketa already does not exist';
-
-    const deleteAnketa = await prisma.anketa.delete({
-        where: {
-            id: BigInt(data.id)
+            id: BigInt(userId)
         },
         include: {
-            User: true
+            Anketa: true
         }
     });
+    if(!isExist) throw new Error('User is not found');
 
-    return deleteAnketa;
+    if(isExist.anketaId==anketaId){
+        const deleteAnketa = await prisma.anketa.delete({
+            where: {
+                id: BigInt(anketaId)
+            },
+            include: {
+                User: true
+            }
+        });
+        return deleteAnketa;
+    }
+    throw new Error("You are not the author of this Anketa");
 }
 
 module.exports = methods;

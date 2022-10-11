@@ -7,11 +7,12 @@ const auth = require('../middlewares/auth')
 const { isAuth, isAdmin, ModerOrAdmin, isOperator, isModer, isNotUser } = require("../middlewares/auth")
 const upload = require("../middlewares/upload");
 const { prisma } = require("@prisma/client");
+const TMClient = require('textmagic-rest-client');
+const sms = require("../utils/sms")
 
 router.post('/registration', upload.single('avatar') ,async (req, res) => {
     const { phoneNumber, firstName, lastName,fatherName, password, IIN } = req.body;
     const { file } = req;
-    console.log({file})
     const { msg, success} = validator.isString({firstName, lastName, fatherName, password, IIN, phoneNumber});
     if(!success) return res.status(400).send({ success: false, data: msg});
 

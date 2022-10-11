@@ -1,4 +1,5 @@
 const prisma = require('../../prisma');
+const redisClient = require('../../cache-storage/redisClient')
 const methods = {
     create: null,
     getAll: null,
@@ -10,6 +11,9 @@ const methods = {
 
 methods.getAll = async function() {   
     const genre = await prisma.genre.findMany();
+    await redisClient.set("asd", 'asdsdasd', "EX", 60 * 60)
+    const result = await redisClient.get("asd")
+    console.log({result})
     return genre; 
 }   
 

@@ -5,7 +5,7 @@ const responseController = require('../controllers/response');
 const validator = require('../utils/validator');
 const { isAuth, isAdmin } = require('../middlewares/auth');
 
-router.post('/:bookId', isAuth, async (req, res) => {
+router.post('/:bookId', async (req, res) => {
     try{
     const { bookId } = req.params;
     const  userId  = req.user.id;
@@ -16,11 +16,33 @@ router.post('/:bookId', isAuth, async (req, res) => {
         console.log(err)
         return res.status(500).send({ success: false, data: err?.message || err});
     }
-
-
-
-
 })
+
+.get('/getOne/:responseId', async (req,res) => {
+    try{
+        const { responseId } = req.params;
+        const userId = req.user.id;
+        const getOneResponse = await responseController.getOne(userId, responseId)
+        return res.status(200).send({success: true, data: getOneResponse})
+
+    }catch(err){
+        console.log(err)
+        return res.status(500).send({ success: false, data: err?.message || err});
+    }
+})
+
+.get('/getAll', async (req,res) => {
+    try{
+        const userId = req.user.id;
+        const getAllResponse = await responseController.getAll(userId)
+        return res.status(200).send({success: true, data: getAllResponse})
+    }catch(err){
+        console.log(err)
+        return res.status(500).send({ success: false, data: err?.message || err});
+    }
+})
+
+
 
 
 module.exports = router;

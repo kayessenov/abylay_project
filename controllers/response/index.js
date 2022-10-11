@@ -1,18 +1,36 @@
 const prisma = require("../../prisma")
+const { get } = require("../../routes/user")
 const methods = {
-    update: null,
     create: null,
     delete: null,
     getOne: null,
     getAll: null,
 }
 
-methods.update = async function(data){
-
-}
-
 methods.delete = async function(data){
+    const isExist = await prisma.response.findUnique({
+        where: {
+            id: BigInt(data.id)
+        },
+        include: {
+            Book: true,
+            User: true
+        }
+    });
 
+    if(!isExist) throw new Error("Response is not found");
+
+    const deleteResponse = await prisma.response.delete({
+        where: {
+            id: BigInt(data.id)
+        },
+        include: {
+            Book: true,
+            User: true
+        }
+    });
+
+    return deleteResponse;
 }
 
 methods.create = async function({userId, bookId}){
@@ -44,12 +62,33 @@ methods.create = async function({userId, bookId}){
 
 }
 
-methods.getAll = async function(data){
-
+methods.getAll = async function(userId){
+    const getAllResponse = await prisma.response.findMany({
+        where: {
+            userId: BigInt(userId)
+        },
+        include: {
+            User: true,
+            Book: true
+        }
+    })
+    return getAllResponse;
 }
 
-methods.getOne = async function(data){
+methods.getOne = async function(userId, responseId){
+    const isExist = await prisma.response.findFirst({
+        where: {
+            id: BigInt(responseId),
+            userId: BigInt(userId)
+        },
+        include: {
+            User: true,
+            Book: true
+        }
+    });
+    if(!isExist) throw new Error("Response is not found")
 
+    return isExist;
 }
 
 module.exports = methods;
