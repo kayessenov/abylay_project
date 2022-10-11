@@ -95,7 +95,7 @@ model News {
   short_title String       @db.VarChar(30)
   description String       @db.VarChar(1000)
   created_at  DateTime
-  update_at   DateTime
+  update_at   DateTime?
   ImageModel  ImageModel[]
   Comment     Comment[]
 }
@@ -105,6 +105,8 @@ model Comment {
   message String
   userId  BigInt
   newsId  BigInt
+  created_at  DateTime
+  update_at   DateTime?
   User    User   @relation(fields: [userId], references: [id], onDelete: NoAction)
   News    News   @relation(fields: [newsId], references: [id], onDelete: NoAction)
 }
@@ -121,7 +123,7 @@ model Booking {
   id               BigInt   @id @default(autoincrement())
   received_date    DateTime
   expiration_date  DateTime
-  return_date      DateTime
+  return_date      DateTime?
   userId           BigInt
   bookId           BigInt
   isExtend         Boolean  @default(false)

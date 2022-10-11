@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const routes = require("./routes");
 require("dotenv").config();
+require("express-async-errors");
 
 const app = express();
 
@@ -15,20 +16,21 @@ app.use(cors());
 
 app.use('/', routes);
 
-app.use(async (err, req, res, _next) => {
-  
-    console.error(req, err);
-  
-    if (err instanceof Error) {
-        return res.status(400).send({success: false, data: err.message});
-    } else {
-        return res.status(400).send({success: false, data: err});
-    }
-   })
 
 app.get("/", (req, res) => {
     res.send('ok')
 });
+
+app.use((err, req, res, next) => {
+  
+    console.error(req, err);
+  
+    if (err instanceof Error) {
+        return res.status(500).send({success: false, data: err.message});
+    } else {
+        return res.status(500).send({success: false, data: err});
+    }
+   })
 
 app.listen(process.env.PORT, () => {
 	console.log(`[Express] Started on ${process.env.PORT}`);

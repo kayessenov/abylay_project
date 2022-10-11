@@ -8,17 +8,39 @@ const methods = {
 }
 
 methods.create = async function(bookData, genreIds){
-    genreIds = genreIds.map(id => ({genreId: id}) )
+    const { title,
+        author,
+        isbn,
+        description,
+        count,
+        rating,
+        price,
+        publishing_date,
+        topic} = bookData;
+        genreIds = genreIds.map(id => ({genreId: id}) )
     const book = await prisma.book.create({
         data: {
-            ...bookData,
+            title,
+        author,
+        isbn,
+        description,
+        count,
+        rating,
+        price,
+        publishing_date,
+        topic,
             BookGenre: {
-                create: genreIds
+                create: genre
             }
         },
         include: {
             BookGenre: true
         }
+    })
+
+    let data = bookData.files.map(file => ({link: file.path, bookId: book.id}));
+    const resukt = await prisma.imageModel.createMany({
+        data
     })
     return book;
 }
@@ -80,27 +102,20 @@ methods.getOne = async function(data) {
     if(!isExist) return "Book already does not exist";
 
     return isExist;
-
-    // const getBook = await prisma.book.findUnique({
-    //     where: {
-    //         id: BigInt(data.id)
-    //     }
-    // })
-    // return getBook;
 }
 
-methods.delete = async function(data){
+methods.delete = async function(id){
     const isExist = await prisma.book.findUnique({
         where: {
-            id: BigInt(data.id)
+            id: BigInt(id)
         }
     })
 
-    if(!isExist) return "Book already does not exist"
+    if(!isExist) return "Book is not found"
 
     const deleteBook = await prisma.book.delete({
         where: {
-            id: BigInt(data.id)
+            id: BigInt(id)
         },
         include: {
             BookGenre: true

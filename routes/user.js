@@ -5,14 +5,19 @@ const userController = require('../controllers/user');
 const validator = require('../utils/validator')
 const auth = require('../middlewares/auth')
 const { isAuth, isAdmin, ModerOrAdmin, isOperator, isModer, isNotUser } = require("../middlewares/auth")
+const upload = require("../middlewares/upload");
+const { prisma } = require("@prisma/client");
+const TMClient = require('textmagic-rest-client');
+const sms = require("../utils/sms")
 
-router.post('/registration', async (req, res) => {
-    const { phoneNumber, firstName, lastName,fatherName, avatar, password, IIN } = req.body;
+router.post('/registration', upload.single('avatar') ,async (req, res) => {
+    const { phoneNumber, firstName, lastName,fatherName, password, IIN } = req.body;
+    const { file } = req;
     const { msg, success} = validator.isString({firstName, lastName, fatherName, password, IIN, phoneNumber});
     if(!success) return res.status(400).send({ success: false, data: msg});
 
-    const createdGenre = await userController.registration({phoneNumber, firstName, lastName,fatherName, avatar, password, IIN})
-    return res.status(200).send({ success: true, data: createdGenre });
+    const createUser = await userController.registration({phoneNumber, firstName, avatar: file.path, lastName,fatherName, password, IIN})
+    return res.status(200).send({ success: true, data: createUser });
 })
 
 .post('/login', async (req, res) => {
@@ -49,6 +54,15 @@ router.post('/registration', async (req, res) => {
         console.log(err)
         return res.status(500).send({ success: false, data: err.message});
     }
+})
+
+.post('/find', isAuth, isNotUser, async (req, res) => {
+    const { firstName, lastName, IIN } = req.body;
+    const { msg, success } = validator.isString({ firstName, lastName, IIN });
+    if(!success) return res.status(400).send({ success: false, data: msg });
+
+    const findUser = await userController.findUser({firstName, lastName, IIN});
+    return res.status(200).send({ success: true, data: findUser });
 })
 
 

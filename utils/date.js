@@ -32,7 +32,7 @@ module.exports = function (str = '', { onlyDate } = {}) {
     
     if (onlyDate) res.setHours(0, 0, 0, 0);
    
-    return res;
+    return res.toISOString();
    
    };
    

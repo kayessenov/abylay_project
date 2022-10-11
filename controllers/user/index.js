@@ -1,7 +1,11 @@
 const config = require("../../config/config.json");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const methods = {};
+const methods = {
+	registration: null,
+	login: null, 
+	findUser: null
+};
 const prisma = require("../../prisma");
 
 
@@ -54,5 +58,23 @@ methods.login = async function ({password, phoneNumber}) {
 		throw new Error("Authentication failed. Wrong password.");
 	}
 };
+
+methods.findUser = async function({ firstName, lastName, IIN }) {
+	const user = await prisma.user.findFirst({
+		where: {
+			firstName: firstName,
+			lastName: lastName,
+			IIN: IIN
+		},
+		include: {
+			Booking: true,
+			Comment: true,
+			Response: true,
+			Anketa: true
+		}
+	})
+
+	return user;
+}
 
 module.exports = methods;
